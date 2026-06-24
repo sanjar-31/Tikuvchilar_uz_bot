@@ -1,0 +1,83 @@
+// ============================================
+// Tikuvchilar UZ Bot — Database Schema
+// ORM: Prisma | Database: SQLite
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User model — stores all registered users
+// (both clients and tailors share this table)
+// ============================================
+model User {
+  id         Int      @id @default(autoincrement())
+  telegramId String   @unique
+  fullName   String
+  phone      String
+  language   String   @default("uz") // "uz" or "ru"
+  role       String   @default("CLIENT") // "CLIENT" or "MASTER"
+  createdAt  DateTime @default(now())
+
+  // Relations
+  master        Master?
+  clientOrders  Order[]  @relation("ClientOrders")
+}
+
+// ============================================
+// Master model — additional data for tailors
+// Linked 1:1 to User via userId
+// ============================================
+model Master {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  address     String
+  workingHours String  // JSON string: {"start": "09:00", "end": "18:00"}
+  workingDays  String  // JSON string: ["Mon","Tue","Wed","Thu","Fri"]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders       Order[]       @relation("MasterOrders")
+  blockedDates BlockedDate[]
+}
+
+// ============================================
+// Order model — booking made by a client
+// Links a client (User) to a master (Master)
+// ============================================
+model Order {
+  id          Int      @id @default(autoincrement())
+  clientId    Int
+  masterId    Int
+  date        String   // format: "2026-06-25"
+  time        String   // format: "10:00"
+  description String   // what needs to be sewn
+  status      String   @default("PENDING") // "PENDING", "CONFIRMED", "CANCELLED"
+  createdAt   DateTime @default(now())
+
+  // Relations
+  client  User   @relation("ClientOrders", fields: [clientId], references: [id], onDelete: Cascade)
+  master  Master @relation("MasterOrders", fields: [masterId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// BlockedDate model — days when tailor is unavailable
+// (vacation, holiday, personal reasons, etc.)
+// ============================================
+model BlockedDate {
+  id       Int    @id @default(autoincrement())
+  masterId Int
+  date     String // format: "2026-06-25"
+  reason   String @default("")
+
+  // Relations
+  master Master @relation(fields: [masterId], references: [id], onDelete: Cascade)
+}
