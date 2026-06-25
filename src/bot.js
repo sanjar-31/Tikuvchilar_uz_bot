@@ -10,6 +10,7 @@ const { Telegraf, Scenes, session } = require('telegraf');
 const { authMiddleware } = require('./middlewares/auth');
 const { startReminderScheduler } = require('./utils/scheduler');
 const { disconnect } = require('./database');
+const http = require('http');
 
 // Import all scenes
 const startScene = require('./scenes/start');
@@ -150,6 +151,15 @@ async function main() {
     await bot.launch();
 
     console.log('✅ Bot is running! Press Ctrl+C to stop.');
+
+    // Render uchun dummy port binding
+    const PORT = process.env.PORT || 3000;
+    http.createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('Bot is active and running');
+    }).listen(PORT, () => {
+      console.log(`[Render] Dummy server listening on port ${PORT}`);
+    });
   } catch (err) {
     console.error('❌ Failed to start bot:', err.message);
     process.exit(1);
