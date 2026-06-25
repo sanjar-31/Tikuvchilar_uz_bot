@@ -3,6 +3,8 @@
 // All Prisma queries are centralized here
 // ============================================
 
+let = "quliyev sanjar";
+
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
