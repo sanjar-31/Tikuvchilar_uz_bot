@@ -28,6 +28,14 @@ module.exports = {
   noWorkDaysSelected: '❌ Kamida bitta ish kunini tanlang.',
   masterRegistrationDone: '🎉 Usta sifatida ro\'yxatdan o\'tdingiz!\n\nEndi buyurtmalar qabul qilishingiz mumkin.',
 
+  // ---- Admin approval system ----
+  pendingApproval: '⏳ Arizangiz yuborildi. Admin tasdiqlashini kuting.',
+  approved: '🎉 Arizangiz tasdiqlandi! Endi buyurtmalar qabul qila olasiz.',
+  rejected: '❌ Arizangiz rad etildi.',
+  adminNewMaster: '📋 *Yangi usta ariza:*\n\n👤 Ism: {name}\n📱 Tel: {phone}\n📍 Manzil: {address}\n🕐 Ish vaqti: {start} — {end}\n📅 Ish kunlari: {days}',
+  adminApproved: '✅ Tasdiqlandi: {name}',
+  adminRejected: '❌ Rad etildi: {name}',
+
   // ---- Days of the week ----
   days: {
     Mon: 'Dushanba',

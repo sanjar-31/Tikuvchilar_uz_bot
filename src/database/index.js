@@ -3,6 +3,8 @@
 // All Prisma queries are centralized here
 // ============================================
 
+let = "quliyev sanjar";
+
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -82,8 +84,34 @@ async function createMaster(data) {
       address: data.address,
       workingHours: JSON.stringify(data.workingHours),
       workingDays: JSON.stringify(data.workingDays),
-      isActive: true,
+      isActive: false, // Requires admin approval
     },
+    include: { user: true },
+  });
+}
+
+/**
+ * Set a master's active status directly
+ * @param {number} masterId - Internal master ID
+ * @param {boolean} isActive - New active status
+ * @returns {Promise<object>} Updated master record with user info
+ */
+async function setMasterActive(masterId, isActive) {
+  return prisma.master.update({
+    where: { id: masterId },
+    data: { isActive },
+    include: { user: true },
+  });
+}
+
+/**
+ * Delete a master record by ID (used when admin rejects)
+ * @param {number} masterId - Internal master ID
+ * @returns {Promise<object>} Deleted master record
+ */
+async function deleteMaster(masterId) {
+  return prisma.master.delete({
+    where: { id: masterId },
   });
 }
 
@@ -370,6 +398,8 @@ module.exports = {
   getActiveMasters,
   toggleMasterActive,
   updateMaster,
+  setMasterActive,
+  deleteMaster,
   // Order
   createOrder,
   getOrderById,

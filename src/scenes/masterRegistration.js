@@ -135,8 +135,8 @@ masterRegistrationScene.action('workdays_done', async (ctx) => {
       return ctx.scene.enter('start');
     }
 
-    // Create master record in database
-    await createMaster({
+    // Create master record in database (isActive = false, pending admin approval)
+    const master = await createMaster({
       userId: user.id,
       address: reg.address,
       workingHours: {
@@ -149,6 +149,7 @@ masterRegistrationScene.action('workdays_done', async (ctx) => {
     // Show selected days in confirmation
     const selectedDayNames = reg.workDays.map((d) => locale.days[d]).join(', ');
 
+    // Edit the work days message to show summary
     await ctx.editMessageText(
       `${locale.masterRegistrationDone}\n\n`
       + `📍 ${reg.address}\n`
@@ -157,11 +158,37 @@ masterRegistrationScene.action('workdays_done', async (ctx) => {
       { parse_mode: 'Markdown' }
     );
 
+    // Send "pending approval" message to master
+    await ctx.reply(locale.pendingApproval, { parse_mode: 'Markdown' });
+
+    // Send notification to ADMIN with Approve/Reject buttons
+    const adminId = process.env.ADMIN_TELEGRAM_ID;
+    if (adminId) {
+      const adminLocale = require('../locales/uz'); // Admin always gets UZ locale
+      const adminText = adminLocale.adminNewMaster
+        .replace('{name}', user.fullName)
+        .replace('{phone}', user.phone)
+        .replace('{address}', reg.address)
+        .replace('{start}', reg.workStart)
+        .replace('{end}', reg.workEnd)
+        .replace('{days}', selectedDayNames);
+
+      await ctx.telegram.sendMessage(adminId, adminText, {
+        parse_mode: 'Markdown',
+        ...Markup.inlineKeyboard([
+          [
+            Markup.button.callback('✅ Tasdiqlash', `approve_master_${master.id}`),
+            Markup.button.callback('❌ Rad etish', `reject_master_${master.id}`),
+          ],
+        ]),
+      });
+    }
+
     // Clear registration data
     delete ctx.session.masterReg;
 
-    // Go to master menu
-    return ctx.scene.enter('masterMenu');
+    // Return to start (master cannot use menu until approved)
+    return ctx.scene.enter('start');
   } catch (err) {
     console.error('[Master Registration] Error creating master:', err.message);
     return ctx.reply(locale.errorGeneral, { parse_mode: 'Markdown' });
