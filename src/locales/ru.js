@@ -28,6 +28,14 @@ module.exports = {
   noWorkDaysSelected: '❌ Выберите хотя бы один рабочий день.',
   masterRegistrationDone: '🎉 Вы зарегистрированы как мастер!\n\nТеперь вы можете принимать заказы.',
 
+  // ---- Admin approval system ----
+  pendingApproval: '⏳ Ваша заявка отправлена. Ожидайте подтверждения администратора.',
+  approved: '🎉 Ваша заявка одобрена! Теперь вы можете принимать заказы.',
+  rejected: '❌ Ваша заявка отклонена.',
+  adminNewMaster: '📋 *Новая заявка мастера:*\n\n👤 Имя: {name}\n📱 Тел: {phone}\n📍 Адрес: {address}\n🕐 Время работы: {start} — {end}\n📅 Рабочие дни: {days}',
+  adminApproved: '✅ Одобрен: {name}',
+  adminRejected: '❌ Отклонён: {name}',
+
   // ---- Days of the week ----
   days: {
     Mon: 'Понедельник',

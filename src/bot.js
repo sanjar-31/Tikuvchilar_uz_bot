@@ -112,7 +112,101 @@ bot.on('text', (ctx) => {
 });
 
 // ============================================
-// Handle callback query errors gracefully
+// Admin approval system — approve/reject masters
+// ============================================
+const { getMasterById, setMasterActive, deleteMaster } = require('./database');
+const { getLocale } = require('./middlewares/auth');
+const uzLocale = require('./locales/uz');
+const ruLocale = require('./locales/ru');
+
+/**
+ * Handle admin approving a master registration
+ * Sets master isActive = true, notifies the master
+ */
+bot.action(/^approve_master_(\d+)$/, async (ctx) => {
+  await ctx.answerCbQuery();
+
+  const adminId = process.env.ADMIN_TELEGRAM_ID;
+  if (String(ctx.from.id) !== String(adminId)) return;
+
+  const masterId = parseInt(ctx.match[1], 10);
+
+  try {
+    const master = await getMasterById(masterId);
+    if (!master) {
+      return ctx.editMessageText('❌ Master not found (already deleted).');
+    }
+
+    // Activate the master
+    await setMasterActive(masterId, true);
+
+    // Get the master's language locale for notification
+    const masterLocale = master.user.language === 'ru' ? ruLocale : uzLocale;
+
+    // Notify the master
+    await ctx.telegram.sendMessage(
+      master.user.telegramId,
+      masterLocale.approved,
+      { parse_mode: 'Markdown' }
+    );
+
+    // Edit admin message to show result
+    const adminLocale = uzLocale;
+    await ctx.editMessageText(
+      adminLocale.adminApproved.replace('{name}', master.user.fullName),
+      { parse_mode: 'Markdown' }
+    );
+  } catch (err) {
+    console.error('[Admin Approval] Error:', err.message);
+    await ctx.editMessageText('❌ Error approving master.');
+  }
+});
+
+/**
+ * Handle admin rejecting a master registration
+ * Deletes master record, notifies the master
+ */
+bot.action(/^reject_master_(\d+)$/, async (ctx) => {
+  await ctx.answerCbQuery();
+
+  const adminId = process.env.ADMIN_TELEGRAM_ID;
+  if (String(ctx.from.id) !== String(adminId)) return;
+
+  const masterId = parseInt(ctx.match[1], 10);
+
+  try {
+    const master = await getMasterById(masterId);
+    if (!master) {
+      return ctx.editMessageText('❌ Master not found (already deleted).');
+    }
+
+    // Get the master's language locale for notification
+    const masterLocale = master.user.language === 'ru' ? ruLocale : uzLocale;
+
+    // Notify the master before deletion
+    await ctx.telegram.sendMessage(
+      master.user.telegramId,
+      masterLocale.rejected,
+      { parse_mode: 'Markdown' }
+    );
+
+    // Delete the master record
+    await deleteMaster(masterId);
+
+    // Edit admin message to show result
+    const adminLocale = uzLocale;
+    await ctx.editMessageText(
+      adminLocale.adminRejected.replace('{name}', master.user.fullName),
+      { parse_mode: 'Markdown' }
+    );
+  } catch (err) {
+    console.error('[Admin Rejection] Error:', err.message);
+    await ctx.editMessageText('❌ Error rejecting master.');
+  }
+});
+
+// ============================================
+// Handle unknown callback queries gracefully
 // Answers the callback to remove loading state
 // ============================================
 bot.on('callback_query', (ctx) => {
