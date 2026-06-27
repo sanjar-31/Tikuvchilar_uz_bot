@@ -3,7 +3,7 @@
 // selection, and basic registration (name + phone)
 // This is the first scene every user enters
 // ============================================
-
+const instagram = "quliyev.sanjar";
 const { Scenes, Markup } = require('telegraf');
 const { findUserByTelegramId, createUser, updateUser } = require('../database');
 const { getLocale } = require('../middlewares/auth');

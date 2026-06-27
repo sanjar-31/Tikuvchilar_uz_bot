@@ -85,15 +85,15 @@ bot.command('help', (ctx) => {
 
   const helpText = isRu
     ? '🧵 *Tikuvchilar UZ Bot*\n\n'
-      + '📌 Команды:\n'
-      + '/start — Начать заново\n'
-      + '/help — Показать помощь\n\n'
-      + '💡 Используйте кнопки меню для навигации.'
+    + '📌 Команды:\n'
+    + '/start — Начать заново\n'
+    + '/help — Показать помощь\n\n'
+    + '💡 Используйте кнопки меню для навигации.'
     : '🧵 *Tikuvchilar UZ Bot*\n\n'
-      + '📌 Buyruqlar:\n'
-      + '/start — Qayta boshlash\n'
-      + '/help — Yordam ko\'rsatish\n\n'
-      + '💡 Navigatsiya uchun menyu tugmalaridan foydalaning.';
+    + '📌 Buyruqlar:\n'
+    + '/start — Qayta boshlash\n'
+    + '/help — Yordam ko\'rsatish\n\n'
+    + '💡 Navigatsiya uchun menyu tugmalaridan foydalaning.';
 
   return ctx.reply(helpText, { parse_mode: 'Markdown' });
 });
