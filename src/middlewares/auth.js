@@ -3,7 +3,7 @@
 // and attaches locale to every request context
 // ============================================
 
-const { findUserByTelegramId } = require('../database');
+const { findUserByTelegramId, updateUser } = require('../database');
 const uz = require('../locales/uz');
 const ru = require('../locales/ru');
 
@@ -27,9 +27,16 @@ async function authMiddleware(ctx, next) {
     }
 
     // Look up user in database
-    const user = await findUserByTelegramId(telegramId);
+    let user = await findUserByTelegramId(telegramId);
 
     if (user) {
+      // If user role is MASTER but has no master record, force role back to CLIENT
+      if (user.role === 'MASTER' && !user.master) {
+        user = await updateUser(telegramId, { role: 'CLIENT' });
+        // Retrieve master again just in case (though it is null)
+        user.master = null;
+      }
+
       // Attach user data and locale to context state
       ctx.state.user = user;
       ctx.state.locale = user.language === 'ru' ? ru : uz;
