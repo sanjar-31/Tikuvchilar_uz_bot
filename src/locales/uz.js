@@ -15,6 +15,8 @@ module.exports = {
 
   // ---- Registration (shared) ----
   askName: '📝 Iltimos, to\'liq ismingizni kiriting:',
+  askFullName: '✏️ Iltimos, to\'liq ism va familiyangizni kiriting.\nMasalan: Sardor Rahimov',
+  invalidFullName: '❌ Iltimos, ism VA familiyangizni kiriting.\nMasalan: Sardor Rahimov',
   askPhone: '📱 Telefon raqamingizni kiriting:\n\n_Masalan: +998901234567_',
   invalidPhone: '❌ Telefon raqami noto\'g\'ri. Iltimos, qayta kiriting:\n\n_Masalan: +998901234567_',
   registrationComplete: '✅ Ro\'yxatdan o\'tish muvaffaqiyatli yakunlandi!',

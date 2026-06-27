@@ -113,7 +113,7 @@ startScene.action('role_client', async (ctx) => {
 
   // Ask for full name
   ctx.session.step = 'ask_name';
-  return ctx.reply(locale.askName, { parse_mode: 'Markdown' });
+  return ctx.reply(locale.askFullName, { parse_mode: 'Markdown' });
 });
 
 /**
@@ -128,7 +128,7 @@ startScene.action('role_master', async (ctx) => {
 
   // Ask for full name
   ctx.session.step = 'ask_name';
-  return ctx.reply(locale.askName, { parse_mode: 'Markdown' });
+  return ctx.reply(locale.askFullName, { parse_mode: 'Markdown' });
 });
 
 // ============================================
@@ -146,9 +146,13 @@ startScene.on('text', async (ctx) => {
   // Step 1: Collect full name
   if (step === 'ask_name') {
     const fullName = ctx.message.text.trim();
+    const words = fullName.split(/\s+/).filter(Boolean);
 
-    if (fullName.length < 2) {
-      return ctx.reply(locale.askName, { parse_mode: 'Markdown' });
+    // Validate containing at least two words and each word being at least 2 characters long
+    const isValid = words.length >= 2 && words.every(word => word.length >= 2);
+
+    if (!isValid) {
+      return ctx.reply(locale.invalidFullName, { parse_mode: 'Markdown' });
     }
 
     ctx.session.fullName = fullName;

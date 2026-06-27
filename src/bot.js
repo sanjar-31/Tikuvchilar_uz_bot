@@ -241,6 +241,15 @@ bot.catch((err, ctx) => {
 // Launch the bot
 // ============================================
 async function main() {
+  // Start the HTTP server immediately for Render port binding
+  const PORT = process.env.PORT || 3000;
+  http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot is active and running');
+  }).listen(PORT, () => {
+    console.log(`[Render] Dummy server listening on port ${PORT}`);
+  });
+
   try {
     console.log('🧵 Starting Tikuvchilar UZ Bot...');
 
@@ -251,15 +260,6 @@ async function main() {
     await bot.launch();
 
     console.log('✅ Bot is running! Press Ctrl+C to stop.');
-
-    // Render uchun dummy port binding
-    const PORT = process.env.PORT || 3000;
-    http.createServer((req, res) => {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Bot is active and running');
-    }).listen(PORT, () => {
-      console.log(`[Render] Dummy server listening on port ${PORT}`);
-    });
   } catch (err) {
     console.error('❌ Failed to start bot:', err.message);
     process.exit(1);

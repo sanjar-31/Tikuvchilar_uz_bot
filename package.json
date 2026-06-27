@@ -4,7 +4,8 @@
   "description": "Telegram bot for tailors and clients — book appointments, manage orders, and get reminders",
   "main": "src/bot.js",
   "scripts": {
-    "start": "node src/bot.js",
+    "start": "npx prisma db push && node src/bot.js",
+    "build": "npx prisma generate && npx prisma db push",
     "dev": "nodemon src/bot.js",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",

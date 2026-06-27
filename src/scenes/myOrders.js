@@ -57,25 +57,7 @@ myOrdersScene.enter(async (ctx) => {
         status: statusText,
       });
 
-      // Build inline buttons (only show cancel for pending orders)
-      const buttons = [];
-      if (order.status === 'PENDING') {
-        buttons.push([
-          Markup.button.callback(
-            locale.btnCancelOrder,
-            `client_cancel_order_${order.id}`
-          ),
-        ]);
-      }
-
-      if (buttons.length > 0) {
-        await ctx.reply(orderText, {
-          parse_mode: 'Markdown',
-          ...Markup.inlineKeyboard(buttons),
-        });
-      } else {
-        await ctx.reply(orderText, { parse_mode: 'Markdown' });
-      }
+      await ctx.reply(orderText, { parse_mode: 'Markdown' });
     }
 
     // Show back button after all orders
@@ -87,49 +69,7 @@ myOrdersScene.enter(async (ctx) => {
   }
 });
 
-// ============================================
-// Cancel order handler
-// ============================================
 
-/**
- * Handle client cancelling a pending order
- * Updates order status to CANCELLED and notifies the master
- */
-myOrdersScene.action(/^client_cancel_order_(\d+)$/, async (ctx) => {
-  await ctx.answerCbQuery();
-
-  const orderId = parseInt(ctx.match[1], 10);
-  const locale = ctx.state.locale || getLocale(ctx.session?.language || 'uz');
-
-  try {
-    const order = await getOrderById(orderId);
-
-    if (!order || order.status !== 'PENDING') {
-      return ctx.answerCbQuery(locale.errorGeneral, { show_alert: true });
-    }
-
-    // Update order status to CANCELLED
-    await updateOrderStatus(orderId, 'CANCELLED');
-
-    // Update the message to show cancelled status
-    await ctx.editMessageText(
-      formatMessage(locale.orderItem, {
-        id: String(order.id),
-        date: order.date,
-        time: order.time,
-        master: order.master.user.fullName,
-        description: order.description,
-        status: locale.statusCancelled,
-      }),
-      { parse_mode: 'Markdown' }
-    );
-
-    await ctx.reply(locale.orderCancelled, { parse_mode: 'Markdown' });
-  } catch (err) {
-    console.error('[My Orders] Error cancelling order:', err.message);
-    await ctx.reply(locale.errorGeneral, { parse_mode: 'Markdown' });
-  }
-});
 
 // ============================================
 // Navigation
