@@ -114,7 +114,7 @@ bot.on('text', (ctx) => {
 // ============================================
 // Admin approval system — approve/reject masters
 // ============================================
-const { getMasterById, setMasterActive, deleteMaster } = require('./database');
+const { getMasterById, setMasterActive, deleteMaster, updateUser } = require('./database');
 const { getLocale } = require('./middlewares/auth');
 const uzLocale = require('./locales/uz');
 const ruLocale = require('./locales/ru');
@@ -139,6 +139,9 @@ bot.action(/^approve_master_(\d+)$/, async (ctx) => {
 
     // Activate the master
     await setMasterActive(masterId, true);
+
+    // Update User role to MASTER
+    await updateUser(master.user.telegramId, { role: 'MASTER' });
 
     // Get the master's language locale for notification
     const masterLocale = master.user.language === 'ru' ? ruLocale : uzLocale;
@@ -180,18 +183,21 @@ bot.action(/^reject_master_(\d+)$/, async (ctx) => {
       return ctx.editMessageText('❌ Master not found (already deleted).');
     }
 
+    // Update User role back to CLIENT
+    await updateUser(master.user.telegramId, { role: 'CLIENT' });
+
+    // Delete the master record
+    await deleteMaster(masterId);
+
     // Get the master's language locale for notification
     const masterLocale = master.user.language === 'ru' ? ruLocale : uzLocale;
 
-    // Notify the master before deletion
+    // Notify the master
     await ctx.telegram.sendMessage(
       master.user.telegramId,
       masterLocale.rejected,
       { parse_mode: 'Markdown' }
     );
-
-    // Delete the master record
-    await deleteMaster(masterId);
 
     // Edit admin message to show result
     const adminLocale = uzLocale;

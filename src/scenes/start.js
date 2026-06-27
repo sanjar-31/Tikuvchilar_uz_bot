@@ -176,7 +176,7 @@ startScene.on('text', async (ctx) => {
         fullName: ctx.session.fullName,
         phone: ctx.session.phone,
         language: ctx.session.language || 'uz',
-        role: ctx.session.role || 'CLIENT',
+        role: 'CLIENT', // Keep role as CLIENT until admin approves
       });
 
       // Update context state

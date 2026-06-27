@@ -19,6 +19,11 @@ const masterMenuScene = new Scenes.BaseScene('masterMenu');
 masterMenuScene.enter(async (ctx) => {
   if (!ctx.session) ctx.session = {};
 
+  const user = ctx.state.user;
+  if (!user || user.role !== 'MASTER' || !user.master || (user.master.isActive !== true && user.master.isActive !== false)) {
+    return ctx.scene.enter('clientMenu');
+  }
+
   const locale = ctx.state.locale || getLocale(ctx.session.language || 'uz');
 
   return ctx.reply(locale.masterMenu, {
